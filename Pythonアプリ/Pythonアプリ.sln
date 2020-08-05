@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "天気取得アプリ", "天気取得アプリ\天気取得アプリ.pyproj", "{03DDBA54-B64A-4EF4-8DB9-79D77EBB74C8}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "LINEbotアプリ", "LINEbotアプリ\LINEbotアプリ.pyproj", "{9C64EB1E-7DB5-46FC-A83A-2457B137EFE2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{03DDBA54-B64A-4EF4-8DB9-79D77EBB74C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03DDBA54-B64A-4EF4-8DB9-79D77EBB74C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C64EB1E-7DB5-46FC-A83A-2457B137EFE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C64EB1E-7DB5-46FC-A83A-2457B137EFE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F6247F24-BCA8-44FA-BCB8-4755FD7452FA}
+	EndGlobalSection
+EndGlobal
