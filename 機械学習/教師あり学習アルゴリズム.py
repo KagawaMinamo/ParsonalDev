@@ -38,3 +38,8 @@ mglearn.plots.plot_knn_regression(n_neighbors=1)
 # 複数の最近傍点を用いる場合は最近傍点の平均値を用いる
 # 3-最近傍回帰を用いたデータセット予測
 mglearn.plots.plot_knn_regression(n_neighbors=3)
+
+# 線形モデルによる回帰
+# y=w[0]*x[0]+bのように表される
+mglearn.plots.plot_linear_regression_wave()
+
