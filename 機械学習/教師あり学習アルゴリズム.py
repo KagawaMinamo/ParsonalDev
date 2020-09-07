@@ -1,12 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-#from IPython.display import display
+from IPython.display import display
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 import mglearn
 from sklearn.datasets import load_breast_cancer
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import LinearSVC
 
 # # データセットの生成
 # # forgeデータセットは二つの特徴量を持つ
@@ -42,4 +44,21 @@ mglearn.plots.plot_knn_regression(n_neighbors=3)
 # 線形モデルによる回帰
 # y=w[0]*x[0]+bのように表される
 mglearn.plots.plot_linear_regression_wave()
+
+
+# クラス分類のための線形モデル
+# LogistocRegressionを使用したときの決定境界の可視化
+X, y = mglearn.datasets.make_forge()
+fig, axes = plt.subplots(1, 2, figsize=(10, 3))
+for model, ax in zip([LinearSVC(), LogisticRegression()], axes):
+    clf = model.fit(X, y)
+    mglearn.plots.plot_2d_separator(clf, X, fill=False, eps=0.5, ax=ax, alpha=.7)
+    mglearn.discrete_scatter(X[:, 0], X[:, 1], y, ax=ax)
+    ax.set_title(clf.__class__.__name__)
+    ax.set_xlabel("Feature 0")
+    ax.set_ylabel("Feature 1")
+axes[0].legend()
+
+# LinearSVCを使用したときの決定境界
+mglearn.plots.plot_linear_svc_regularization()
 
