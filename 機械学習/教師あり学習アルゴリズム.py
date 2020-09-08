@@ -62,3 +62,5 @@ axes[0].legend()
 # LinearSVCを使用したときの決定境界
 mglearn.plots.plot_linear_svc_regularization()
 
+
+

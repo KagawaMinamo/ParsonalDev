@@ -132,34 +132,95 @@ print("Test set score: {:.2f}".format(ridge10.score(X_test, y_test)))
 # mglearn.plots.plot_ridge_n_samples()
 
 #----------------------------------------------------------------------------------------------------------------------------
-# Lasso
-# 係数が0になるように制約を書けるがリッジ回帰と違ってL1正規化と呼ばれる
-lasso = Lasso().fit(X_train, y_train)
-print("Training set score: {:.2f}".format(lasso.score(X_train, y_train)))
-print("Test set score: {:.2f}".format(lasso.score(X_test, y_test)))
-print("Number of features used:", np.sum(lasso.coef_ != 0))
+# # Lasso
+# # 係数が0になるように制約を書けるがリッジ回帰と違ってL1正規化と呼ばれる
+# lasso = Lasso().fit(X_train, y_train)
+# print("Training set score: {:.2f}".format(lasso.score(X_train, y_train)))
+# print("Test set score: {:.2f}".format(lasso.score(X_test, y_test)))
+# print("Number of features used:", np.sum(lasso.coef_ != 0))
 
-# max_iterの値を増やしている
-# 酢やしておかないとモデルがmax_iterを増やせと警告する
-lasso001 = Lasso(alpha=0.01, max_iter=100000).fit(X_train, y_train)
-print("Training set score: {:.2f}".format(lasso001.score(X_train, y_train)))
-print("Test set score: {:.2f}".format(lasso001.score(X_test, y_test)))
-print("Number of features used:", np.sum(lasso001.coef_ != 0))
+# # max_iterの値を増やしている
+# # 酢やしておかないとモデルがmax_iterを増やせと警告する
+# lasso001 = Lasso(alpha=0.01, max_iter=100000).fit(X_train, y_train)
+# print("Training set score: {:.2f}".format(lasso001.score(X_train, y_train)))
+# print("Test set score: {:.2f}".format(lasso001.score(X_test, y_test)))
+# print("Number of features used:", np.sum(lasso001.coef_ != 0))
 
-# alphaを小さくしすぎるとリッジ回帰の場合同様、正規化の効果が薄れ過剰適合が発生
-lasso00001 = Lasso(alpha=0.0001, max_iter=100000).fit(X_train, y_train)
-print("Training set score: {:.2f}".format(lasso00001.score(X_train, y_train)))
-print("Test set score: {:.2f}".format(lasso00001.score(X_test, y_test)))
-print("Number of features used:", np.sum(lasso00001.coef_ != 0))
+# # alphaを小さくしすぎるとリッジ回帰の場合同様、正規化の効果が薄れ過剰適合が発生
+# lasso00001 = Lasso(alpha=0.0001, max_iter=100000).fit(X_train, y_train)
+# print("Training set score: {:.2f}".format(lasso00001.score(X_train, y_train)))
+# print("Test set score: {:.2f}".format(lasso00001.score(X_test, y_test)))
+# print("Number of features used:", np.sum(lasso00001.coef_ != 0))
 
-# 係数をプロット
-plt.plot(lasso.coef_, 's', label="Lasso alpha=1")
-plt.plot(lasso001.coef_, '^', label="Lasso alpha=0.01")
-plt.plot(lasso00001.coef_, 'v', label="Lasso alpha=0.0001")
-plt.plot(ridge01.coef_, 'o', label="Ridge alpha=0.1")
-plt.legend(ncol=2, loc=(0, 1.05))
-plt.ylim(-25, 25)
-plt.xlabel("Coefficient index")
-plt.ylabel("Coefficient magnitude")
+# # 係数をプロット
+# plt.plot(lasso.coef_, 's', label="Lasso alpha=1")
+# plt.plot(lasso001.coef_, '^', label="Lasso alpha=0.01")
+# plt.plot(lasso00001.coef_, 'v', label="Lasso alpha=0.0001")
+# plt.plot(ridge01.coef_, 'o', label="Ridge alpha=0.1")
+# plt.legend(ncol=2, loc=(0, 1.05))
+# plt.ylim(-25, 25)
+# plt.xlabel("Coefficient index")
+# plt.ylabel("Coefficient magnitude")
 
 #----------------------------------------------------------------------------------------------------------------------------
+# 線形モデルによる多クラス分類
+# 単純な3クラス分類データセットに対して1対その他手法を適応させてみる
+# 1対その他は2クラス分類アルゴリズムを多クラス分類アルゴリズムに拡張すること
+X, y = make_blobs(random_state=42)
+mglearn.discrete_scatter(X[:, 0], X[:, 1], y)
+plt.xlabel("Feature 0")
+plt.ylabel("Feature 1")
+plt.legend(["Class 0", "Class 1", "Class 2"])
+
+# LineaeSVCクラス分類器をデータセットに学習させてみる
+linear_svm = LinearSVC().fit(X, y)
+print("Coefficient shape: ", linear_svm.coef_.shape)
+print("Intercept shape: ", linear_svm.intercept_.shape)
+
+# 3つのクラス分類器による直線の可視化
+mglearn.discrete_scatter(X[:, 0], X[:, 1], y)
+line = np.linspace(-15, 15)
+for coef, intercept, color in zip(linear_svm.coef_, linear_svm.intercept_, mglearn.cm3.colors):
+    plt.plot(line, -(line * coef[0] + intercept) / coef[1], c=color)
+plt.ylim(-10, 15)
+plt.xlim(-10, 8)
+plt.xlabel("Feature 0")
+plt.ylabel("Feature 1")
+plt.legend(['Class 0', 'Class 1', 'Class 2', 'Line class 0', 'Line class 1', 'Line class 2'], loc=(1.01, 0.3))
+
+# 1対その他クラス分類器による多クラス分類の決定境界
+mglearn.plots.plot_2d_classification(linear_svm, X, fill=True, alpha=.7)
+mglearn.discrete_scatter(X[:, 0], X[:, 1], y)
+line = np.linspace(-15, 15)
+for coef, intercept, color in zip(linear_svm.coef_, linear_svm.intercept_, ['b', 'r', 'g']):
+    plt.plot(line, -(line * coef[0] + intercept) / coef[1], c=color)
+plt.legend(['Class 0', 'Class 1', 'Class 2', 'Line class 0', 'Line class 1', 'Line class 2'], loc=(1.01, 0.3))
+plt.xlabel('Feature 0')
+plt.ylabel('Feature 1')
+
+#----------------------------------------------------------------------------------------------------------------------------
+# 本編とは関係ない
+# # メソッドチェーン
+# # 1行でモデルのインスタンスを生成して訓練する
+# logreg = LogisticRegression().fit(X_train, y_train)
+# # scikit-learnでは、fitとpredictに対してメソッドチェーンがよく使われる
+# logreg = LogisticRegression()
+# y_pred = logreg.fit(X_train, y_train).predict(X_test)
+
+#----------------------------------------------------------------------------------------------------------------------------
+# ナイーブベイズクラス分類器
+# 線形モデルによく似たクラス分類器
+# 訓練が線形モデルよりも高速だが、汎化性能はLogisticRegressionやLinearSVCよりわずかに劣る
+# それぞれ4つの2値特徴量を持つ4つのデータポイントがある、クラス0と1がある
+X = np.array([[0, 1, 0, 1],
+              [1, 0, 1, 1],
+              [0, 0, 0, 1],
+              [1, 0, 1, 0]])
+y = np.array([0, 1, 0, 1])
+
+counts = {}
+for label in np.unique(y):
+    # クラスに対してループ
+    # それぞれの特徴量ごとに非ゼロの数を数える
+    counts[label] = X[y == label].sum(axis=0)
+print("Feature counts: \n{}".format(counts))
