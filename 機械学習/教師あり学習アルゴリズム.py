@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from IPython.display import display
+# from IPython.display import display
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 import mglearn

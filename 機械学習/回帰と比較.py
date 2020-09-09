@@ -15,6 +15,10 @@ from sklearn.linear_model import Lasso #ラッソ
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
 from sklearn.datasets import make_blobs
+import os
+from sklearn.tree import  DecisionTreeRegressor # 決定木
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.datasets import make_moons
 
 
 # # データを訓練セットとテストセットに分割
@@ -163,40 +167,40 @@ print("Test set score: {:.2f}".format(ridge10.score(X_test, y_test)))
 # plt.ylabel("Coefficient magnitude")
 
 #----------------------------------------------------------------------------------------------------------------------------
-# 線形モデルによる多クラス分類
-# 単純な3クラス分類データセットに対して1対その他手法を適応させてみる
-# 1対その他は2クラス分類アルゴリズムを多クラス分類アルゴリズムに拡張すること
-X, y = make_blobs(random_state=42)
-mglearn.discrete_scatter(X[:, 0], X[:, 1], y)
-plt.xlabel("Feature 0")
-plt.ylabel("Feature 1")
-plt.legend(["Class 0", "Class 1", "Class 2"])
+# # 線形モデルによる多クラス分類
+# # 単純な3クラス分類データセットに対して1対その他手法を適応させてみる
+# # 1対その他は2クラス分類アルゴリズムを多クラス分類アルゴリズムに拡張すること
+# X, y = make_blobs(random_state=42)
+# mglearn.discrete_scatter(X[:, 0], X[:, 1], y)
+# plt.xlabel("Feature 0")
+# plt.ylabel("Feature 1")
+# plt.legend(["Class 0", "Class 1", "Class 2"])
 
-# LineaeSVCクラス分類器をデータセットに学習させてみる
-linear_svm = LinearSVC().fit(X, y)
-print("Coefficient shape: ", linear_svm.coef_.shape)
-print("Intercept shape: ", linear_svm.intercept_.shape)
+# # LineaeSVCクラス分類器をデータセットに学習させてみる
+# linear_svm = LinearSVC().fit(X, y)
+# print("Coefficient shape: ", linear_svm.coef_.shape)
+# print("Intercept shape: ", linear_svm.intercept_.shape)
 
-# 3つのクラス分類器による直線の可視化
-mglearn.discrete_scatter(X[:, 0], X[:, 1], y)
-line = np.linspace(-15, 15)
-for coef, intercept, color in zip(linear_svm.coef_, linear_svm.intercept_, mglearn.cm3.colors):
-    plt.plot(line, -(line * coef[0] + intercept) / coef[1], c=color)
-plt.ylim(-10, 15)
-plt.xlim(-10, 8)
-plt.xlabel("Feature 0")
-plt.ylabel("Feature 1")
-plt.legend(['Class 0', 'Class 1', 'Class 2', 'Line class 0', 'Line class 1', 'Line class 2'], loc=(1.01, 0.3))
+# # 3つのクラス分類器による直線の可視化
+# mglearn.discrete_scatter(X[:, 0], X[:, 1], y)
+# line = np.linspace(-15, 15)
+# for coef, intercept, color in zip(linear_svm.coef_, linear_svm.intercept_, mglearn.cm3.colors):
+#     plt.plot(line, -(line * coef[0] + intercept) / coef[1], c=color)
+# plt.ylim(-10, 15)
+# plt.xlim(-10, 8)
+# plt.xlabel("Feature 0")
+# plt.ylabel("Feature 1")
+# plt.legend(['Class 0', 'Class 1', 'Class 2', 'Line class 0', 'Line class 1', 'Line class 2'], loc=(1.01, 0.3))
 
-# 1対その他クラス分類器による多クラス分類の決定境界
-mglearn.plots.plot_2d_classification(linear_svm, X, fill=True, alpha=.7)
-mglearn.discrete_scatter(X[:, 0], X[:, 1], y)
-line = np.linspace(-15, 15)
-for coef, intercept, color in zip(linear_svm.coef_, linear_svm.intercept_, ['b', 'r', 'g']):
-    plt.plot(line, -(line * coef[0] + intercept) / coef[1], c=color)
-plt.legend(['Class 0', 'Class 1', 'Class 2', 'Line class 0', 'Line class 1', 'Line class 2'], loc=(1.01, 0.3))
-plt.xlabel('Feature 0')
-plt.ylabel('Feature 1')
+# # 1対その他クラス分類器による多クラス分類の決定境界
+# mglearn.plots.plot_2d_classification(linear_svm, X, fill=True, alpha=.7)
+# mglearn.discrete_scatter(X[:, 0], X[:, 1], y)
+# line = np.linspace(-15, 15)
+# for coef, intercept, color in zip(linear_svm.coef_, linear_svm.intercept_, ['b', 'r', 'g']):
+#     plt.plot(line, -(line * coef[0] + intercept) / coef[1], c=color)
+# plt.legend(['Class 0', 'Class 1', 'Class 2', 'Line class 0', 'Line class 1', 'Line class 2'], loc=(1.01, 0.3))
+# plt.xlabel('Feature 0')
+# plt.ylabel('Feature 1')
 
 #----------------------------------------------------------------------------------------------------------------------------
 # 本編とは関係ない
@@ -224,3 +228,64 @@ for label in np.unique(y):
     # それぞれの特徴量ごとに非ゼロの数を数える
     counts[label] = X[y == label].sum(axis=0)
 print("Feature counts: \n{}".format(counts))
+
+#----------------------------------------------------------------------------------------------------------------------------
+# 決定木
+# 計算機のメモリ(RAM)価格の履歴データセットをプロットしてみる
+ram_prices = pd.read_csv(os.path.join(mglearn.datasets.DATA_PATH, "ram_price.csv"))
+plt.semilogy(ram_prices.date, ram_prices.price)
+plt.xlabel("Year")
+plt.ylabel("Price in $/Mbyte")
+
+# 2000年目でのデータを使ってそれ以降を予測してみる
+# 過去データを用いて2000年以降の価格を予測する
+data_train = ram_prices[ram_prices.date < 2000]
+data_test = ram_prices[ram_prices.date >= 2000]
+
+# 日付に基づいて予測
+X_train = data_train.date[:, np.newaxis]
+# データとターゲットの関係を単純にするために対数変換
+y_train = np.log(data_train.price)
+
+tree = DecisionTreeRegressor(max_depth=3).fit(X_train, y_train)
+linear_reg = LinearRegression().fit(X_train, y_train)
+
+# すべての価格を予測
+X_all = ram_prices.date[:, np.newaxis]
+
+pred_tree = tree.predict(X_all)
+pred_lr = linear_reg.predict(X_all)
+
+# 対数変換をキャンセルするために逆変換
+price_tree = np.exp(pred_tree)
+price_lr = np.exp(pred_lr)
+
+# 決定木モデルと線形モデルの予測結果と実際のデータを比較
+plt.semilogy(data_train.date, data_train.price, label="Training data")
+plt.semilogy(data_test.date, data_test.price, label="Test data")
+plt.semilogy(ram_prices.date, price_tree, label="Tree prediction")
+plt.semilogy(ram_prices.date, price_lr, label="Linear prediction")
+plt.legend()
+
+#----------------------------------------------------------------------------------------------------------------------------
+# 決定木のアンサンブル法
+# アンサンブル法とは、複数の機械学習モデルを組み合わせることでより強力なモデルを構築する手法
+# 様々なデータセットに対するクラス分類や回帰に対して有効
+
+# ランダムフォレスト
+# 少しずつ異なる決定木をたくさん集めたもの
+X, y = make_moons(n_samples=100, noise=0.25, random_state=3)
+X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y,random_state=42)
+
+forest = RandomForestClassifier(n_estimators=5, random_state=2)
+forest.fit(X_train, y_train)
+
+# それぞれの決定木で学習された決定境界とランダムフォレストによって行われる集合的な予測
+fig, axes = plt.subplots(2, 3, figsize=(20, 10))
+for i, (ax, tree) in enumerate(zip(axes.ravel(), forest.estimators_)):
+    ax.set_title("Tree {}".format(i))
+    mglearn.plots.plot_tree_partition(X_train, y_train, tree, ax=ax)
+    
+mglearn.plots.plot_2d_separator(forest, X_train, fill=True, ax=axes[-1, -1],alpha=.4)
+axes[-1, -1].set_title("Random Forest")
+mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train)

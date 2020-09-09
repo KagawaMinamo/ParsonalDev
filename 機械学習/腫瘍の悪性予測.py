@@ -17,6 +17,7 @@ from sklearn.svm import LinearSVC
 from sklearn.tree import DecisionTreeClassifier # 決定木
 from sklearn.tree import export_graphviz
 import graphviz
+from sklearn.ensemble import RandomForestClassifier
 
 # 腫瘍データをロードする
 cancer = load_breast_cancer()
@@ -135,12 +136,10 @@ tree.fit(X_train, y_train)
 print("Accuracy on training set: {:.3f}".format(tree.score(X_train, y_train)))
 print("Accuracy on test set: {:.3f}".format(tree.score(X_test, y_test)))
 
-# export_graphviz(tree, out_file="tree.dot", class_names=["malignant", "benign"], feature_names=cancer.feature_names, impurity=False, filled=True)
+export_graphviz(tree, out_file="tree.dot", class_names=["malignant", "benign"], feature_names=cancer.feature_names, impurity=False, filled=True)
 
-# with open("tree.dot",'r',encoding='utf-8') as f:
-#     dot_graph = f.read()
-# display(graphviz.Source(dot_graph))
-
+with open("tree.dot",'r',encoding='utf-8') as f:
+    dot_graph = f.read()
 print("Feature importances: {}/n".format(tree.feature_importances_))
 
 def plot_feature_importances_cancer(model):
@@ -152,4 +151,16 @@ def plot_feature_importances_cancer(model):
     plt.ylim(-1, n_features)
 
 plot_feature_importances_cancer(tree)
+
+tree = mglearn.plots.plot_tree_not_monotone()
+
+#----------------------------------------------------------------------------------------------------------------------------
+# 100個の決定木を使用したランダムフォレスト
+X_train, X_test, y_train, y_test = train_test_split(cancer.data, cancer.target, random_state=0)
+forest = RandomForestClassifier(n_estimators=100, random_state=0)
+forest.fit(X_train, y_train)
+
+print("Accuracy on training set: {:.3f}".format(forest.score(X_train, y_train)))
+print("Accuracy on test set: {:.3f}".format(forest.score(X_test, y_test)))
+
 
