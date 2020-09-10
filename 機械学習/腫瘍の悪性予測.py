@@ -18,6 +18,7 @@ from sklearn.tree import DecisionTreeClassifier # 決定木
 from sklearn.tree import export_graphviz
 import graphviz
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 
 # 腫瘍データをロードする
 cancer = load_breast_cancer()
@@ -123,24 +124,24 @@ print("Test set score: {:.3f}".format(logreg001.score(X_test, y_test)))
 #----------------------------------------------------------------------------------------------------------------------------
 # 決定木の複雑さの制御
 cancer = load_breast_cancer()
-X_train, X_test, y_train, y_test = train_test_split(
-    cancer.data, cancer.target, stratify=cancer.target, random_state=42)
-tree = DecisionTreeClassifier(random_state=0)
-tree.fit(X_train, y_train)
-print("Accuracy on training set: {:.3f}".format(tree.score(X_train, y_train)))
-print("Accuracy on test set: {:.3f}".format(tree.score(X_test, y_test)))
+# X_train, X_test, y_train, y_test = train_test_split(
+#     cancer.data, cancer.target, stratify=cancer.target, random_state=42)
+# tree = DecisionTreeClassifier(random_state=0)
+# tree.fit(X_train, y_train)
+# print("Accuracy on training set: {:.3f}".format(tree.score(X_train, y_train)))
+# print("Accuracy on test set: {:.3f}".format(tree.score(X_test, y_test)))
 
-# 深さに制約をかけて決定木が複雑にならないように枝刈り
-tree = DecisionTreeClassifier(max_depth=4, random_state=0)
-tree.fit(X_train, y_train)
-print("Accuracy on training set: {:.3f}".format(tree.score(X_train, y_train)))
-print("Accuracy on test set: {:.3f}".format(tree.score(X_test, y_test)))
+# # 深さに制約をかけて決定木が複雑にならないように枝刈り
+# tree = DecisionTreeClassifier(max_depth=4, random_state=0)
+# tree.fit(X_train, y_train)
+# print("Accuracy on training set: {:.3f}".format(tree.score(X_train, y_train)))
+# print("Accuracy on test set: {:.3f}".format(tree.score(X_test, y_test)))
 
-export_graphviz(tree, out_file="tree.dot", class_names=["malignant", "benign"], feature_names=cancer.feature_names, impurity=False, filled=True)
+# export_graphviz(tree, out_file="tree.dot", class_names=["malignant", "benign"], feature_names=cancer.feature_names, impurity=False, filled=True)
 
-with open("tree.dot",'r',encoding='utf-8') as f:
-    dot_graph = f.read()
-print("Feature importances: {}/n".format(tree.feature_importances_))
+# with open("tree.dot",'r',encoding='utf-8') as f:
+#     dot_graph = f.read()
+# print("Feature importances: {}/n".format(tree.feature_importances_))
 
 def plot_feature_importances_cancer(model):
     n_features = cancer.data.shape[1]
@@ -150,9 +151,9 @@ def plot_feature_importances_cancer(model):
     plt.ylabel("Feature")
     plt.ylim(-1, n_features)
 
-plot_feature_importances_cancer(tree)
+# plot_feature_importances_cancer(tree)
 
-tree = mglearn.plots.plot_tree_not_monotone()
+# tree = mglearn.plots.plot_tree_not_monotone()
 
 #----------------------------------------------------------------------------------------------------------------------------
 # 100個の決定木を使用したランダムフォレスト
@@ -160,7 +161,41 @@ X_train, X_test, y_train, y_test = train_test_split(cancer.data, cancer.target, 
 forest = RandomForestClassifier(n_estimators=100, random_state=0)
 forest.fit(X_train, y_train)
 
-print("Accuracy on training set: {:.3f}".format(forest.score(X_train, y_train)))
-print("Accuracy on test set: {:.3f}".format(forest.score(X_test, y_test)))
+# print("Accuracy on training set: {:.3f}".format(forest.score(X_train, y_train)))
+# print("Accuracy on test set: {:.3f}".format(forest.score(X_test, y_test)))
+
+# 特徴量の重要度
+plot_feature_importances_cancer(forest)
+
+#----------------------------------------------------------------------------------------------------------------------------
+#　勾配ブースティング回帰木
+# デフォルトでは乱数性はないが、強力な事前枝刈りが行われる
+# 深さがすごく浅い決定木を用いる
+# それぞれの決定木は一部に対してしかいい結果は行えないので、決定木を繰り返し追加して性能を向上させる
+# デフォルトでは深さ3の決定木100個作られ、学習率は0.1
+# 腫瘍データに勾配ブースティング回帰木を適用させる
+X_train, X_test, y_train, y_test = train_test_split(cancer.data, cancer.target, random_state=0)
+
+gbrt = GradientBoostingClassifier(random_state=0)
+gbrt.fit(X_train, y_train)
+print("Accuracy on training set: {:.3f}".format(gbrt.score(X_train, y_train)))
+print("Accuracy on test set: {:.3f}".format(gbrt.score(X_test, y_test)))
+
+# 事前枝刈りする場合の精度
+gbrt = GradientBoostingClassifier(random_state=0, max_depth=1)
+gbrt.fit(X_train, y_train)
+print("Accuracy on training set: {:.3f}".format(gbrt.score(X_train, y_train)))
+print("Accuracy on test set: {:.3f}".format(gbrt.score(X_test, y_test)))
+
+# 学習率を下げた場合の精度
+gbrt = GradientBoostingClassifier(random_state=0, learning_rate=0.01)
+gbrt.fit(X_train, y_train)
+print("Accuracy on training set: {:.3f}".format(gbrt.score(X_train, y_train)))
+print("Accuracy on test set: {:.3f}".format(gbrt.score(X_test, y_test)))
+
+# 特徴量の重要度
+gbrt = GradientBoostingClassifier(random_state=0, max_depth=1)
+gbrt.fit(X_train, y_train)
+plot_feature_importances_cancer(gbrt)
 
 

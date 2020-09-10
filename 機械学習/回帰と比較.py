@@ -19,6 +19,7 @@ import os
 from sklearn.tree import  DecisionTreeRegressor # 決定木
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.datasets import make_moons
+from mpl_toolkits.mplot3d import Axes3D, axes3d
 
 
 # # データを訓練セットとテストセットに分割
@@ -230,62 +231,115 @@ for label in np.unique(y):
 print("Feature counts: \n{}".format(counts))
 
 #----------------------------------------------------------------------------------------------------------------------------
-# 決定木
-# 計算機のメモリ(RAM)価格の履歴データセットをプロットしてみる
-ram_prices = pd.read_csv(os.path.join(mglearn.datasets.DATA_PATH, "ram_price.csv"))
-plt.semilogy(ram_prices.date, ram_prices.price)
-plt.xlabel("Year")
-plt.ylabel("Price in $/Mbyte")
+# # 決定木
+# # 計算機のメモリ(RAM)価格の履歴データセットをプロットしてみる
+# ram_prices = pd.read_csv(os.path.join(mglearn.datasets.DATA_PATH, "ram_price.csv"))
+# plt.semilogy(ram_prices.date, ram_prices.price)
+# plt.xlabel("Year")
+# plt.ylabel("Price in $/Mbyte")
 
-# 2000年目でのデータを使ってそれ以降を予測してみる
-# 過去データを用いて2000年以降の価格を予測する
-data_train = ram_prices[ram_prices.date < 2000]
-data_test = ram_prices[ram_prices.date >= 2000]
+# # 2000年目でのデータを使ってそれ以降を予測してみる
+# # 過去データを用いて2000年以降の価格を予測する
+# data_train = ram_prices[ram_prices.date < 2000]
+# data_test = ram_prices[ram_prices.date >= 2000]
 
-# 日付に基づいて予測
-X_train = data_train.date[:, np.newaxis]
-# データとターゲットの関係を単純にするために対数変換
-y_train = np.log(data_train.price)
+# # 日付に基づいて予測
+# X_train = data_train.date[:, np.newaxis]
+# # データとターゲットの関係を単純にするために対数変換
+# y_train = np.log(data_train.price)
 
-tree = DecisionTreeRegressor(max_depth=3).fit(X_train, y_train)
-linear_reg = LinearRegression().fit(X_train, y_train)
+# tree = DecisionTreeRegressor(max_depth=3).fit(X_train, y_train)
+# linear_reg = LinearRegression().fit(X_train, y_train)
 
-# すべての価格を予測
-X_all = ram_prices.date[:, np.newaxis]
+# # すべての価格を予測
+# X_all = ram_prices.date[:, np.newaxis]
 
-pred_tree = tree.predict(X_all)
-pred_lr = linear_reg.predict(X_all)
+# pred_tree = tree.predict(X_all)
+# pred_lr = linear_reg.predict(X_all)
 
-# 対数変換をキャンセルするために逆変換
-price_tree = np.exp(pred_tree)
-price_lr = np.exp(pred_lr)
+# # 対数変換をキャンセルするために逆変換
+# price_tree = np.exp(pred_tree)
+# price_lr = np.exp(pred_lr)
 
-# 決定木モデルと線形モデルの予測結果と実際のデータを比較
-plt.semilogy(data_train.date, data_train.price, label="Training data")
-plt.semilogy(data_test.date, data_test.price, label="Test data")
-plt.semilogy(ram_prices.date, price_tree, label="Tree prediction")
-plt.semilogy(ram_prices.date, price_lr, label="Linear prediction")
-plt.legend()
+# # 決定木モデルと線形モデルの予測結果と実際のデータを比較
+# plt.semilogy(data_train.date, data_train.price, label="Training data")
+# plt.semilogy(data_test.date, data_test.price, label="Test data")
+# plt.semilogy(ram_prices.date, price_tree, label="Tree prediction")
+# plt.semilogy(ram_prices.date, price_lr, label="Linear prediction")
+# plt.legend()
 
 #----------------------------------------------------------------------------------------------------------------------------
-# 決定木のアンサンブル法
-# アンサンブル法とは、複数の機械学習モデルを組み合わせることでより強力なモデルを構築する手法
-# 様々なデータセットに対するクラス分類や回帰に対して有効
+# # 決定木のアンサンブル法
+# # アンサンブル法とは、複数の機械学習モデルを組み合わせることでより強力なモデルを構築する手法
+# # 様々なデータセットに対するクラス分類や回帰に対して有効
 
-# ランダムフォレスト
-# 少しずつ異なる決定木をたくさん集めたもの
-X, y = make_moons(n_samples=100, noise=0.25, random_state=3)
-X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y,random_state=42)
+# # ランダムフォレスト
+# # 少しずつ異なる決定木をたくさん集めたもの
+# X, y = make_moons(n_samples=100, noise=0.25, random_state=3)
+# X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y,random_state=42)
 
-forest = RandomForestClassifier(n_estimators=5, random_state=2)
-forest.fit(X_train, y_train)
+# forest = RandomForestClassifier(n_estimators=5, random_state=2)
+# forest.fit(X_train, y_train)
 
-# それぞれの決定木で学習された決定境界とランダムフォレストによって行われる集合的な予測
-fig, axes = plt.subplots(2, 3, figsize=(20, 10))
-for i, (ax, tree) in enumerate(zip(axes.ravel(), forest.estimators_)):
-    ax.set_title("Tree {}".format(i))
-    mglearn.plots.plot_tree_partition(X_train, y_train, tree, ax=ax)
+# # それぞれの決定木で学習された決定境界とランダムフォレストによって行われる集合的な予測
+# fig, axes = plt.subplots(2, 3, figsize=(20, 10))
+# for i, (ax, tree) in enumerate(zip(axes.ravel(), forest.estimators_)):
+#     ax.set_title("Tree {}".format(i))
+#     mglearn.plots.plot_tree_partition(X_train, y_train, tree, ax=ax)
     
-mglearn.plots.plot_2d_separator(forest, X_train, fill=True, ax=axes[-1, -1],alpha=.4)
-axes[-1, -1].set_title("Random Forest")
-mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train)
+# mglearn.plots.plot_2d_separator(forest, X_train, fill=True, ax=axes[-1, -1],alpha=.4)
+# axes[-1, -1].set_title("Random Forest")
+# mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train)
+
+#----------------------------------------------------------------------------------------------------------------------------
+# 線形モデルと非線形特徴量
+# 線形分離が不可能な2クラス分類データセット
+X, y = make_blobs(centers=4, random_state=8)
+y = y % 2
+
+mglearn.discrete_scatter(X[:, 0], X[:, 1], y)
+plt.xlabel("Feature 0")
+plt.ylabel("Feature 1")
+
+linear_svm = LinearSVC().fit(X, y)
+
+mglearn.plots.plot_2d_separator(linear_svm, X)
+mglearn.discrete_scatter(X[:, 0], X[:, 1], y)
+plt.xlabel("Feature 0")
+plt.ylabel("Feature 1")
+
+# 特徴量を拡張して3次元にしてみる
+# 2番目の特徴量の2乗を追加
+X_new = np.hstack([X, X[:, 1:] ** 2])
+
+figure = plt.figure()
+# 3Dで可視化
+ax = Axes3D(figure, elev=-152, azim=-26)
+# y==0をプロットしてからy==1の点をプロット
+mask = y == 0
+ax.scatter(X_new[mask, 0], X_new[mask, 1], X_new[mask, 2], c='b', cmap=mglearn.cm2, s=60, edgecolor='k')
+ax.scatter(X_new[~mask, 0], X_new[~mask, 1], X_new[~mask, 2], c='r', marker='^', cmap=mglearn.cm2, s=60, edgecolor='k')
+ax.set_xlabel("feature0")
+ax.set_ylabel("feature1")
+ax.set_zlabel("feature1 ** 2")
+
+linear_svm_3d = LinearSVC().fit(X_new, y)
+coef, intercept = linear_svm_3d.coef_.ravel(), linear_svm_3d.intercept_
+
+# 線形決定境界の描画
+figure = plt.figure()
+ax = Axes3D(figure, elev=-152, azim=-26)
+xx = np.linspace(X_new[:, 0].min() - 2, X_new[:, 0].max() + 2, 50)
+yy = np.linspace(X_new[:, 1].min() - 2, X_new[:, 1].max() + 2, 50)
+
+XX, YY = np.meshgrid(xx, yy)
+ZZ = (coef[0] * XX + coef[1] * YY + intercept) / -coef[2]
+ax.plot_surface(XX, YY, ZZ, rstride=8, cstride=8, alpha=0.3)
+ax.scatter(X_new[mask, 0], X_new[mask, 1], X_new[mask, 2], c='b',
+           cmap=mglearn.cm2, s=60, edgecolor='k')
+ax.scatter(X_new[~mask, 0], X_new[~mask, 1], X_new[~mask, 2], c='r', marker='^',
+           cmap=mglearn.cm2, s=60, edgecolor='k')
+
+ax.set_xlabel("feature0")
+ax.set_ylabel("feature1")
+ax.set_zlabel("feature1 ** 2")
