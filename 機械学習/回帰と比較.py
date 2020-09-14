@@ -20,6 +20,9 @@ from sklearn.tree import  DecisionTreeRegressor # 決定木
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.datasets import make_moons
 from mpl_toolkits.mplot3d import Axes3D, axes3d
+from sklearn.svm import SVC
+from sklearn.neural_network import MLPClassifier
+
 
 
 # # データを訓練セットとテストセットに分割
@@ -294,52 +297,135 @@ print("Feature counts: \n{}".format(counts))
 #----------------------------------------------------------------------------------------------------------------------------
 # 線形モデルと非線形特徴量
 # 線形分離が不可能な2クラス分類データセット
-X, y = make_blobs(centers=4, random_state=8)
-y = y % 2
+# X, y = make_blobs(centers=4, random_state=8)
+# y = y % 2
 
-mglearn.discrete_scatter(X[:, 0], X[:, 1], y)
-plt.xlabel("Feature 0")
-plt.ylabel("Feature 1")
+# mglearn.discrete_scatter(X[:, 0], X[:, 1], y)
+# plt.xlabel("Feature 0")
+# plt.ylabel("Feature 1")
 
-linear_svm = LinearSVC().fit(X, y)
+# linear_svm = LinearSVC().fit(X, y)
 
-mglearn.plots.plot_2d_separator(linear_svm, X)
-mglearn.discrete_scatter(X[:, 0], X[:, 1], y)
-plt.xlabel("Feature 0")
-plt.ylabel("Feature 1")
+# mglearn.plots.plot_2d_separator(linear_svm, X)
+# mglearn.discrete_scatter(X[:, 0], X[:, 1], y)
+# plt.xlabel("Feature 0")
+# plt.ylabel("Feature 1")
 
 # 特徴量を拡張して3次元にしてみる
 # 2番目の特徴量の2乗を追加
-X_new = np.hstack([X, X[:, 1:] ** 2])
+# X_new = np.hstack([X, X[:, 1:] ** 2])
 
-figure = plt.figure()
+# figure = plt.figure()
 # 3Dで可視化
-ax = Axes3D(figure, elev=-152, azim=-26)
+# ax = Axes3D(figure, elev=-152, azim=-26)
 # y==0をプロットしてからy==1の点をプロット
-mask = y == 0
-ax.scatter(X_new[mask, 0], X_new[mask, 1], X_new[mask, 2], c='b', cmap=mglearn.cm2, s=60, edgecolor='k')
-ax.scatter(X_new[~mask, 0], X_new[~mask, 1], X_new[~mask, 2], c='r', marker='^', cmap=mglearn.cm2, s=60, edgecolor='k')
-ax.set_xlabel("feature0")
-ax.set_ylabel("feature1")
-ax.set_zlabel("feature1 ** 2")
+# mask = y == 0
+# ax.scatter(X_new[mask, 0], X_new[mask, 1], X_new[mask, 2], c='b', cmap=mglearn.cm2, s=60, edgecolor='k')
+# ax.scatter(X_new[~mask, 0], X_new[~mask, 1], X_new[~mask, 2], c='r', marker='^', cmap=mglearn.cm2, s=60, edgecolor='k')
+# ax.set_xlabel("feature0")
+# ax.set_ylabel("feature1")
+# ax.set_zlabel("feature1 ** 2")
 
-linear_svm_3d = LinearSVC().fit(X_new, y)
-coef, intercept = linear_svm_3d.coef_.ravel(), linear_svm_3d.intercept_
+# linear_svm_3d = LinearSVC().fit(X_new, y)
+# coef, intercept = linear_svm_3d.coef_.ravel(), linear_svm_3d.intercept_
 
 # 線形決定境界の描画
-figure = plt.figure()
-ax = Axes3D(figure, elev=-152, azim=-26)
-xx = np.linspace(X_new[:, 0].min() - 2, X_new[:, 0].max() + 2, 50)
-yy = np.linspace(X_new[:, 1].min() - 2, X_new[:, 1].max() + 2, 50)
+# figure = plt.figure()
+# ax = Axes3D(figure, elev=-152, azim=-26)
+# xx = np.linspace(X_new[:, 0].min() - 2, X_new[:, 0].max() + 2, 50)
+# yy = np.linspace(X_new[:, 1].min() - 2, X_new[:, 1].max() + 2, 50)
 
-XX, YY = np.meshgrid(xx, yy)
-ZZ = (coef[0] * XX + coef[1] * YY + intercept) / -coef[2]
-ax.plot_surface(XX, YY, ZZ, rstride=8, cstride=8, alpha=0.3)
-ax.scatter(X_new[mask, 0], X_new[mask, 1], X_new[mask, 2], c='b',
-           cmap=mglearn.cm2, s=60, edgecolor='k')
-ax.scatter(X_new[~mask, 0], X_new[~mask, 1], X_new[~mask, 2], c='r', marker='^',
-           cmap=mglearn.cm2, s=60, edgecolor='k')
+# XX, YY = np.meshgrid(xx, yy)
+# ZZ = (coef[0] * XX + coef[1] * YY + intercept) / -coef[2]
+# ax.plot_surface(XX, YY, ZZ, rstride=8, cstride=8, alpha=0.3)
+# ax.scatter(X_new[mask, 0], X_new[mask, 1], X_new[mask, 2], c='b', cmap=mglearn.cm2, s=60, edgecolor='k')
+# ax.scatter(X_new[~mask, 0], X_new[~mask, 1], X_new[~mask, 2], c='r', marker='^', cmap=mglearn.cm2, s=60, edgecolor='k')
 
-ax.set_xlabel("feature0")
-ax.set_ylabel("feature1")
-ax.set_zlabel("feature1 ** 2")
+# ax.set_xlabel("feature0")
+# ax.set_ylabel("feature1")
+# ax.set_zlabel("feature1 ** 2")
+
+# 決定境界を元の特徴量の関数としてみる
+# ZZ = YY ** 2
+# dec = linear_svm_3d.decision_function(np.c_[XX.ravel(), YY.ravel(), ZZ.ravel()])
+# plt.contourf(XX, YY, dec.reshape(XX.shape), levels=[dec.min(), 0, dec.max()], cmap=mglearn.cm2, alpha=0.5)
+# mglearn.discrete_scatter(X[:, 0], X[:, 1], y)
+# plt.xlabel("Feature 0")
+# plt.ylabel("Feature 1")
+
+#----------------------------------------------------------------------------------------------------------------------------
+# # 2次元2クラス分類データセットに対してサポートベクタマシンを学習させた結果
+# X, y = mglearn.tools.make_handcrafted_dataset()                                                                  
+# svm = SVC(kernel='rbf', C=10, gamma=0.1).fit(X, y)
+# mglearn.plots.plot_2d_separator(svm, X, eps=.5)
+# mglearn.discrete_scatter(X[:, 0], X[:, 1], y)
+# # サポートベクタをプロット
+# sv = svm.support_vectors_
+# # サポートベクタのクラスラベルはdual_coef_の正負によって与えられる
+# sv_labels = svm.dual_coef_.ravel() > 0
+# mglearn.discrete_scatter(sv[:, 0], sv[:, 1], sv_labels, s=15, markeredgewidth=3)
+# plt.xlabel("Feature 0")
+# plt.ylabel("Feature 1")
+
+# # gammaパラメータとCを変化させる
+# fig, axes = plt.subplots(3, 3, figsize=(15, 10))
+
+# for ax, C in zip(axes, [-1, 0, 3]):
+#     for a, gamma in zip(ax, range(-1, 2)):
+#         mglearn.plots.plot_svm(log_C=C, log_gamma=gamma, ax=a)
+        
+# axes[0, 0].legend(["class 0", "class 1", "sv class 0", "sv class 1"], ncol=4, loc=(.9, 1.2))
+
+#----------------------------------------------------------------------------------------------------------------------------
+# ニュートラルネットワーク
+line = np.linspace(-3, 3, 100)
+plt.plot(line, np.tanh(line), label="tanh")
+plt.plot(line, np.maximum(line, 0), label="relu")
+plt.legend(loc="best")
+plt.xlabel("x")
+plt.ylabel("relu(x), tanh(x)")
+
+# 隠れ層に100ユニット持つニュートラルネットワークによる決定境界
+# MLPはデフォルトで100隠れユニットを用いる
+X, y = make_moons(n_samples=100, noise=0.25, random_state=3)
+X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_state=42)
+
+mlp = MLPClassifier(solver='lbfgs', random_state=0).fit(X_train, y_train)
+mglearn.plots.plot_2d_separator(mlp, X_train, fill=True, alpha=.3)
+mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train)
+plt.xlabel("Feature 0")
+plt.ylabel("Feature 1")
+
+# 隠れ層に10ユニット持つニュートラルネットワークによる決定境界
+mlp = MLPClassifier(solver='lbfgs', random_state=0, hidden_layer_sizes=[10])
+mlp.fit(X_train, y_train)
+mglearn.plots.plot_2d_separator(mlp, X_train, fill=True, alpha=.3)
+mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train)
+plt.xlabel("Feature 0")
+plt.ylabel("Feature 1")
+
+# 10ユニット2層の隠れ層を用いたニュートラルネットワークによる決定境界,活性化関数はrelu
+mlp = MLPClassifier(solver='lbfgs', random_state=0, hidden_layer_sizes=[10, 10])
+mlp.fit(X_train, y_train)
+mglearn.plots.plot_2d_separator(mlp, X_train, fill=True, alpha=.3)
+mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train)
+plt.xlabel("Feature 0")
+plt.ylabel("Feature 1")
+
+# 10ユニット2層の隠れ層を用いたニュートラルネットワークによる決定境界,活性化関数はtanh
+mlp = MLPClassifier(solver='lbfgs', activation='tanh', random_state=0, hidden_layer_sizes=[10, 10])
+mlp.fit(X_train, y_train)
+mglearn.plots.plot_2d_separator(mlp, X_train, fill=True, alpha=.3)
+mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train)
+plt.xlabel("Feature 0")
+plt.ylabel("Feature 1")
+
+# 10または100ユニットの2層の隠れ層を持つニュートラルネットワークをデータセットに適用した場合のalphaの効果
+fig, axes = plt.subplots(2, 4, figsize=(20, 8))
+for axx, n_hidden_nodes in zip(axes, [10, 100]):
+    for ax, alpha in zip(axx, [0.0001, 0.01, 0.1, 1]):
+        mlp = MLPClassifier(solver='lbfgs', random_state=0, hidden_layer_sizes=[n_hidden_nodes, n_hidden_nodes], alpha=alpha)
+        mlp.fit(X_train, y_train)
+        mglearn.plots.plot_2d_separator(mlp, X_train, fill=True, alpha=.3, ax=ax)
+        mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train, ax=ax)
+        ax.set_title("n_hidden=[{}, {}]\nalpha={:.4f}".format(n_hidden_nodes, n_hidden_nodes, alpha))

@@ -63,4 +63,3 @@ axes[0].legend()
 mglearn.plots.plot_linear_svc_regularization()
 
 
-
