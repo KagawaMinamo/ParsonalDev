@@ -429,3 +429,12 @@ for axx, n_hidden_nodes in zip(axes, [10, 100]):
         mglearn.plots.plot_2d_separator(mlp, X_train, fill=True, alpha=.3, ax=ax)
         mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train, ax=ax)
         ax.set_title("n_hidden=[{}, {}]\nalpha={:.4f}".format(n_hidden_nodes, n_hidden_nodes, alpha))
+    
+# 同じパラメータで異なる乱数で初期化された状態から学習された様々な決定境界
+fig, axes = plt.subplots(2, 4, figsize=(20, 8))
+for i, ax in enumerate(axes.ravel()):
+    mlp = MLPClassifier(solver='lbfgs', random_state=i, hidden_layer_sizes=[100, 100])
+    mlp.fit(X_train, y_train)
+    mglearn.plots.plot_2d_separator(mlp, X_train, fill=True, alpha=.3, ax=ax)
+    mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train, ax=ax)
+        
