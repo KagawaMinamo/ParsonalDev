@@ -22,6 +22,8 @@ from sklearn.datasets import make_moons
 from mpl_toolkits.mplot3d import Axes3D, axes3d
 from sklearn.svm import SVC
 from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.datasets import make_circles
 
 
 
@@ -377,64 +379,120 @@ print("Feature counts: \n{}".format(counts))
 # axes[0, 0].legend(["class 0", "class 1", "sv class 0", "sv class 1"], ncol=4, loc=(.9, 1.2))
 
 #----------------------------------------------------------------------------------------------------------------------------
-# ニュートラルネットワーク
-line = np.linspace(-3, 3, 100)
-plt.plot(line, np.tanh(line), label="tanh")
-plt.plot(line, np.maximum(line, 0), label="relu")
-plt.legend(loc="best")
-plt.xlabel("x")
-plt.ylabel("relu(x), tanh(x)")
+# # ニュートラルネットワーク
+# line = np.linspace(-3, 3, 100)
+# plt.plot(line, np.tanh(line), label="tanh")
+# plt.plot(line, np.maximum(line, 0), label="relu")
+# plt.legend(loc="best")
+# plt.xlabel("x")
+# plt.ylabel("relu(x), tanh(x)")
 
-# 隠れ層に100ユニット持つニュートラルネットワークによる決定境界
-# MLPはデフォルトで100隠れユニットを用いる
-X, y = make_moons(n_samples=100, noise=0.25, random_state=3)
-X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_state=42)
+# # 隠れ層に100ユニット持つニュートラルネットワークによる決定境界
+# # MLPはデフォルトで100隠れユニットを用いる
+# X, y = make_moons(n_samples=100, noise=0.25, random_state=3)
+# X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_state=42)
 
-mlp = MLPClassifier(solver='lbfgs', random_state=0).fit(X_train, y_train)
-mglearn.plots.plot_2d_separator(mlp, X_train, fill=True, alpha=.3)
-mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train)
-plt.xlabel("Feature 0")
-plt.ylabel("Feature 1")
+# mlp = MLPClassifier(solver='lbfgs', random_state=0).fit(X_train, y_train)
+# mglearn.plots.plot_2d_separator(mlp, X_train, fill=True, alpha=.3)
+# mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train)
+# plt.xlabel("Feature 0")
+# plt.ylabel("Feature 1")
 
-# 隠れ層に10ユニット持つニュートラルネットワークによる決定境界
-mlp = MLPClassifier(solver='lbfgs', random_state=0, hidden_layer_sizes=[10])
-mlp.fit(X_train, y_train)
-mglearn.plots.plot_2d_separator(mlp, X_train, fill=True, alpha=.3)
-mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train)
-plt.xlabel("Feature 0")
-plt.ylabel("Feature 1")
+# # 隠れ層に10ユニット持つニュートラルネットワークによる決定境界
+# mlp = MLPClassifier(solver='lbfgs', random_state=0, hidden_layer_sizes=[10])
+# mlp.fit(X_train, y_train)
+# mglearn.plots.plot_2d_separator(mlp, X_train, fill=True, alpha=.3)
+# mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train)
+# plt.xlabel("Feature 0")
+# plt.ylabel("Feature 1")
 
-# 10ユニット2層の隠れ層を用いたニュートラルネットワークによる決定境界,活性化関数はrelu
-mlp = MLPClassifier(solver='lbfgs', random_state=0, hidden_layer_sizes=[10, 10])
-mlp.fit(X_train, y_train)
-mglearn.plots.plot_2d_separator(mlp, X_train, fill=True, alpha=.3)
-mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train)
-plt.xlabel("Feature 0")
-plt.ylabel("Feature 1")
+# # 10ユニット2層の隠れ層を用いたニュートラルネットワークによる決定境界,活性化関数はrelu
+# mlp = MLPClassifier(solver='lbfgs', random_state=0, hidden_layer_sizes=[10, 10])
+# mlp.fit(X_train, y_train)
+# mglearn.plots.plot_2d_separator(mlp, X_train, fill=True, alpha=.3)
+# mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train)
+# plt.xlabel("Feature 0")
+# plt.ylabel("Feature 1")
 
-# 10ユニット2層の隠れ層を用いたニュートラルネットワークによる決定境界,活性化関数はtanh
-mlp = MLPClassifier(solver='lbfgs', activation='tanh', random_state=0, hidden_layer_sizes=[10, 10])
-mlp.fit(X_train, y_train)
-mglearn.plots.plot_2d_separator(mlp, X_train, fill=True, alpha=.3)
-mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train)
-plt.xlabel("Feature 0")
-plt.ylabel("Feature 1")
+# # 10ユニット2層の隠れ層を用いたニュートラルネットワークによる決定境界,活性化関数はtanh
+# mlp = MLPClassifier(solver='lbfgs', activation='tanh', random_state=0, hidden_layer_sizes=[10, 10])
+# mlp.fit(X_train, y_train)
+# mglearn.plots.plot_2d_separator(mlp, X_train, fill=True, alpha=.3)
+# mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train)
+# plt.xlabel("Feature 0")
+# plt.ylabel("Feature 1")
 
-# 10または100ユニットの2層の隠れ層を持つニュートラルネットワークをデータセットに適用した場合のalphaの効果
-fig, axes = plt.subplots(2, 4, figsize=(20, 8))
-for axx, n_hidden_nodes in zip(axes, [10, 100]):
-    for ax, alpha in zip(axx, [0.0001, 0.01, 0.1, 1]):
-        mlp = MLPClassifier(solver='lbfgs', random_state=0, hidden_layer_sizes=[n_hidden_nodes, n_hidden_nodes], alpha=alpha)
-        mlp.fit(X_train, y_train)
-        mglearn.plots.plot_2d_separator(mlp, X_train, fill=True, alpha=.3, ax=ax)
-        mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train, ax=ax)
-        ax.set_title("n_hidden=[{}, {}]\nalpha={:.4f}".format(n_hidden_nodes, n_hidden_nodes, alpha))
+# # 10または100ユニットの2層の隠れ層を持つニュートラルネットワークをデータセットに適用した場合のalphaの効果
+# fig, axes = plt.subplots(2, 4, figsize=(20, 8))
+# for axx, n_hidden_nodes in zip(axes, [10, 100]):
+#     for ax, alpha in zip(axx, [0.0001, 0.01, 0.1, 1]):
+#         mlp = MLPClassifier(solver='lbfgs', random_state=0, hidden_layer_sizes=[n_hidden_nodes, n_hidden_nodes], alpha=alpha)
+#         mlp.fit(X_train, y_train)
+#         mglearn.plots.plot_2d_separator(mlp, X_train, fill=True, alpha=.3, ax=ax)
+#         mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train, ax=ax)
+#         ax.set_title("n_hidden=[{}, {}]\nalpha={:.4f}".format(n_hidden_nodes, n_hidden_nodes, alpha))
     
-# 同じパラメータで異なる乱数で初期化された状態から学習された様々な決定境界
-fig, axes = plt.subplots(2, 4, figsize=(20, 8))
-for i, ax in enumerate(axes.ravel()):
-    mlp = MLPClassifier(solver='lbfgs', random_state=i, hidden_layer_sizes=[100, 100])
-    mlp.fit(X_train, y_train)
-    mglearn.plots.plot_2d_separator(mlp, X_train, fill=True, alpha=.3, ax=ax)
-    mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train, ax=ax)
-        
+# # 同じパラメータで異なる乱数で初期化された状態から学習された様々な決定境界
+# fig, axes = plt.subplots(2, 4, figsize=(20, 8))
+# for i, ax in enumerate(axes.ravel()):
+#     mlp = MLPClassifier(solver='lbfgs', random_state=i, hidden_layer_sizes=[100, 100])
+#     mlp.fit(X_train, y_train)
+#     mglearn.plots.plot_2d_separator(mlp, X_train, fill=True, alpha=.3, ax=ax)
+#     mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train, ax=ax)
+ 
+
+#----------------------------------------------------------------------------------------------------------------------------
+# クラス分類器の不確実性
+X, y = make_circles(noise=0.25, factor=0.5, random_state=1)
+# クラスをblueとredにする
+y_named = np.array(["blue", "red"])[y]
+# train_test_splitは任意の数の配列に適用できる
+# すべての配列は整合するように適合される
+X_train, X_test, y_train_named, y_test_named, y_train, y_test = \
+    train_test_split(X, y_named, y, random_state=0)
+
+# 勾配ブースティングモデルを構築
+gbrt = GradientBoostingClassifier(random_state=0)
+gbrt.fit(X_train, y_train_named)
+
+# 決定関数
+print("X_test.shape:", X_test.shape)
+print("Decision function shape:", gbrt.decision_function(X_test).shape)
+
+# decision_functionのいくつかを表示
+# 符号だけ見れば予測クラスがわかる
+print("Decision function:", gbrt.decision_function(X_test)[:6])
+
+# 決定関数の値に閾値を適用して真偽に分類したものと予測結果
+print("Thresholded decision function:\n", gbrt.decision_function(X_test) > 0)
+print("Predictions:\n", gbrt.predict(X_test))
+
+# True/Falseを0/1に
+greater_zero = (gbrt.decision_function(X_test) > 0).astype(int)
+# 0/1をclasses_のインデックスに使う
+pred = gbrt.classes_[greater_zero]
+# predはgbrt.predictの出力と同じになる
+print("pred is equal to predictions:", np.all(pred == gbrt.predict(X_test)))
+
+# decision_functionのレンジはデータとモデルパラメータに依存する
+decision_function = gbrt.decision_function(X_test)
+print("Decision function minimum: {:.2f} maximum: {:.2f}".format(np.min(decision_function), np.max(decision_function)))
+
+
+fig, axes = plt.subplots(1, 2, figsize=(13, 5))
+mglearn.tools.plot_2d_separator(gbrt, X, ax=axes[0], alpha=.4, fill=True, cm=mglearn.cm2)
+scores_image = mglearn.tools.plot_2d_scores(gbrt, X, ax=axes[1], alpha=.4, cm=mglearn.ReBl)
+for ax in axes:
+    # 訓練データポイントとテストデータポイントをプロット
+    mglearn.discrete_scatter(X_test[:, 0], X_test[:, 1], y_test, markers='^', ax=ax)
+    mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train, markers='o', ax=ax)
+    ax.set_xlabel("Feature 0")
+    ax.set_ylabel("Feature 1")
+cbar = plt.colorbar(scores_image, ax=axes.tolist())
+cbar.set_alpha(1)
+cbar.draw_all()
+axes[0].legend(["Test class 0", "Test class 1", "Train class 0", "Train class 1"], ncol=4, loc=(.1, 1.1))
+
+#----------------------------------------------------------------------------------------------------------------------------
+
+
