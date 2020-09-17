@@ -494,5 +494,61 @@ cbar.draw_all()
 axes[0].legend(["Test class 0", "Test class 1", "Train class 0", "Train class 1"], ncol=4, loc=(.1, 1.1))
 
 #----------------------------------------------------------------------------------------------------------------------------
+# 確率の予測
+print("Shape of probabilities:", gbrt.predict_proba(X_test).shape)
 
+# predict_probaの出力の最初の数行を見る
+# 第1エントリは第1クラスの予測確率、第2エントリは第2クラスの予測確率
+print("Predicted probabilities:\n{}".format(gbrt.predict_proba(X_test[:6])))
+
+fig, axes = plt.subplots(1, 2, figsize=(13, 5))  
+mglearn.tools.plot_2d_separator(gbrt, X, ax=axes[0], alpha=.4, fill=True, cm=mglearn.cm2)
+scores_image = mglearn.tools.plot_2d_scores(gbrt, X, ax=axes[1], alpha=.5, cm=mglearn.ReBl, function='predict_proba')
+for ax in axes:
+    # 訓練データポイントとテストデータポイントをプロット
+    mglearn.discrete_scatter(X_test[:, 0], X_test[:, 1], y_test, markers='^', ax=ax)
+    mglearn.discrete_scatter(X_train[:, 0], X_train[:, 1], y_train, markers='o', ax=ax)
+    ax.set_xlabel("Feature 0")
+    ax.set_ylabel("Feature 1")
+cbar = plt.colorbar(scores_image, ax=axes.tolist())
+cbar.set_alpha(1)
+cbar.draw_all()
+axes[0].legend(["Test class 0", "Test class 1", "Train class 0", "Train class 1"], ncol=4, loc=(.1, 1.1))
+
+#----------------------------------------------------------------------------------------------------------------------------
+# 多クラス分類の不確実性
+# 3クラス分類でもできるか試す
+iris = load_iris()
+X_train, X_test, y_train, y_test = train_test_split(iris.data, iris.target, random_state=42)
+gbrt = GradientBoostingClassifier(learning_rate=0.01, random_state=0)
+gbrt.fit(X_train, y_train)
+# 決定関数配列の形状と決定関数
+print("Decision function shape:", gbrt.decision_function(X_test).shape)
+# 決定関数の最初のいくつかを表示
+print("Decision function:\n{}".format(gbrt.decision_function(X_test)[:6, :]))
+
+# 決定関数のArgmaxと予測値
+print("Argmax of decision function:\n{}".format(np.argmax(gbrt.decision_function(X_test), axis=1)))
+print("Predictions:\n{}".format(gbrt.predict(X_test)))
+
+# 各クラスになる確率の和は1になる
+# predict_probaの結果の最初の数行を表示
+print("Predicted probabilities:\n{}".format(gbrt.predict_proba(X_test)[:6]))
+# 各行の和がゼロになることを確認
+print("Sums:", gbrt.predict_proba(X_test)[:6].sum(axis=1))
+
+# 予測確率のArgmaxと予測値
+print("Argmax of predicted probabilities:\n{}".format(np.argmax(gbrt.predict_proba(X_test), axis=1)))
+print("Predictions:\n{}".format(gbrt.predict(X_test)))
+
+# クラスの数だけ列がある場合には、列に対してargmaxを計算すれば
+logreg = LogisticRegression()
+# irisデータセットのクラス名で表示する
+named_target = iris.target_names[y_train]
+logreg.fit(X_train, named_target)
+print("unique classes in training data:", logreg.classes_)
+print("predictions:", logreg.predict(X_test)[:10])
+argmax_dec_func = np.argmax(logreg.decision_function(X_test), axis=1)
+print("argmax of decision function:", argmax_dec_func[:10])
+print("argmax combined with classes_:", logreg.classes_[argmax_dec_func][:10])
 
