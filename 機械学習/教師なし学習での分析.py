@@ -51,3 +51,8 @@ for ax in axes:
     ax.set_xlabel("Feature 0")
     ax.set_ylabel("Feature 1")
 fig.tight_layout()
+
+#-------------------------------------------------------------------------------------------------
+# 主成分分析(PCA)
+mglearn.plots.plot_pca_illustration()
+
