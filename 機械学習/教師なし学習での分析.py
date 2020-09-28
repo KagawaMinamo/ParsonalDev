@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split
 import mglearn
 from sklearn.datasets import make_blobs
 from sklearn.preprocessing import MinMaxScaler # スケール変換器
+from sklearn.decomposition import PCA
 
 # 様々なスケール変換と前処理結果
 mglearn.plots.plot_scaling()
@@ -55,4 +56,6 @@ fig.tight_layout()
 #-------------------------------------------------------------------------------------------------
 # 主成分分析(PCA)
 mglearn.plots.plot_pca_illustration()
+# 円を書くようにスケール変換
+mglearn.plots.plot_pca_whitening()
 
