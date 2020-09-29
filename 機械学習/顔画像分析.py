@@ -10,15 +10,16 @@ from sklearn.svm import SVC
 from sklearn.decomposition import PCA
 from sklearn.datasets import fetch_lfw_people
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.decomposition import NMF
 
 # 固有顔による特徴量抽出
 people = fetch_lfw_people(min_faces_per_person=20, resize=0.7)
 image_shape = people.images[0].shape
 
-fig, axes = plt.subplots(2, 5, figsize=(15, 8), subplot_kw={'xticks': (), 'yticks': ()})
-for target, image, ax in zip(people.target, people.images, axes.ravel()):
-    ax.imshow(image)
-    ax.set_title(people.target_names[target])
+# fig, axes = plt.subplots(2, 5, figsize=(15, 8), subplot_kw={'xticks': (), 'yticks': ()})
+# for target, image, ax in zip(people.target, people.images, axes.ravel()):
+#     ax.imshow(image)
+#     ax.set_title(people.target_names[target])
 
 # 入っている顔データ
 # 枚数、ピクセル
@@ -51,3 +52,41 @@ X_train, X_test, y_train, y_test = train_test_split(X_people, y_people, stratify
 knn = KNeighborsClassifier(n_neighbors=1)
 knn.fit(X_train, y_train)
 print("Test set score of 1-nn: {:.2f}".format(knn.score(X_test, y_test)))
+
+# PCAオブジェクトを訓練し、最初の100成分を抜き出す。そして訓練データとテストデータを変換
+pca = PCA(n_components=100, whiten=True, random_state=0).fit(X_train)
+X_train_pca = pca.transform(X_train)
+X_test_pca = pca.transform(X_test)
+print("X_train_pca.shape: {}".format(X_train_pca.shape))
+
+# 1-最近傍法クラス分類器にかける
+knn = KNeighborsClassifier(n_neighbors=1)
+knn.fit(X_train_pca, y_train)
+print("Test set accuracy: {:.2f}".format(knn.score(X_test_pca, y_test)))
+# 最初のいくつかの主成分を見る
+print("pca.components_.shape: {}".format(pca.components_.shape))
+fig, axes = plt.subplots(3, 5, figsize=(15, 12), subplot_kw={'xticks': (), 'yticks': ()})
+for i, (component, ax) in enumerate(zip(pca.components_, axes.ravel())):
+    ax.imshow(component.reshape(image_shape), cmap='viridis')
+    ax.set_title("{}. component".format((i + 1)))
+    
+mglearn.plots.plot_pca_faces(X_train, X_test, image_shape)   
+    
+mglearn.discrete_scatter(X_train_pca[:, 0], X_train_pca[:, 1], y_train)
+plt.xlabel("First principal component")
+plt.ylabel("Second principal component")
+
+#-------------------------------------------------------------------------------------------------
+# 非負値行列因子分解(NMF)
+mglearn.plots.plot_nmf_illustration()
+mglearn.plots.plot_nmf_faces(X_train, X_test, image_shape)
+
+nmf = NMF(n_components=15, random_state=0)
+nmf.fit(X_train)
+X_train_nmf = nmf.transform(X_train)
+X_test_nmf = nmf.transform(X_test)
+
+fig, axes = plt.subplots(3, 5, figsize=(15, 12), subplot_kw={'xticks': (), 'yticks': ()})
+for i, (component, ax) in enumerate(zip(nmf.components_, axes.ravel())):
+    ax.imshow(component.reshape(image_shape))
+    ax.set_title("{}. component".format(i))
