@@ -78,6 +78,7 @@ plt.ylabel("Second principal component")
 
 #-------------------------------------------------------------------------------------------------
 # 非負値行列因子分解(NMF)
+# NMHの顔画像への適用
 mglearn.plots.plot_nmf_illustration()
 mglearn.plots.plot_nmf_faces(X_train, X_test, image_shape)
 
@@ -86,7 +87,27 @@ nmf.fit(X_train)
 X_train_nmf = nmf.transform(X_train)
 X_test_nmf = nmf.transform(X_test)
 
+# # 最初の15成分を見る
 fig, axes = plt.subplots(3, 5, figsize=(15, 12), subplot_kw={'xticks': (), 'yticks': ()})
 for i, (component, ax) in enumerate(zip(nmf.components_, axes.ravel())):
     ax.imshow(component.reshape(image_shape))
     ax.set_title("{}. component".format(i))
+    
+compn = 3
+# 3つ目の成分でソート、最初の10画像表示
+inds = np.argsort(X_train_nmf[:, compn])[::-1]
+fig, axes = plt.subplots(2, 5, figsize=(15, 8), subplot_kw={'xticks': (), 'yticks': ()})
+fig.suptitle("Large component 3")
+for i, (ind, ax) in enumerate(zip(inds, axes.ravel())):
+    ax.imshow(X_train[ind].reshape(image_shape))
+
+compn = 7
+# 7つ目の成分でソート、最初の10画像表示
+inds = np.argsort(X_train_nmf[:, compn])[::-1]
+fig.suptitle("Large component 7")
+fig, axes = plt.subplots(2, 5, figsize=(15, 8), subplot_kw={'xticks': (), 'yticks': ()})
+for i, (ind, ax) in enumerate(zip(inds, axes.ravel())):
+    ax.imshow(X_train[ind].reshape(image_shape))    
+    
+    
+    

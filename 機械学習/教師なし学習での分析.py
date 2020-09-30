@@ -7,6 +7,7 @@ import mglearn
 from sklearn.datasets import make_blobs
 from sklearn.preprocessing import MinMaxScaler # スケール変換器
 from sklearn.decomposition import PCA
+from sklearn.decomposition import NMF
 
 # 様々なスケール変換と前処理結果
 mglearn.plots.plot_scaling()
@@ -59,3 +60,38 @@ mglearn.plots.plot_pca_illustration()
 # 円を書くようにスケール変換
 mglearn.plots.plot_pca_whitening()
 
+#-------------------------------------------------------------------------------------------------
+# 信号の復元
+# もとの信号源
+S = mglearn.datasets.make_signals()
+plt.figure(figsize=(6, 1))
+plt.plot(S, '-')
+plt.xlabel("Time")
+plt.ylabel("Signal")
+
+# 混ざった信号を分解して元の成分を取り出す
+# データを混ぜて100次元の状態を作る
+A = np.random.RandomState(0).uniform(size=(100, 3))
+X = np.dot(S, A.T)
+print("Shape of measurements: {}".format(X.shape))
+
+# NMFを使って3つの信号を復元する
+nmf = NMF(n_components=3, random_state=42)
+S_ = nmf.fit_transform(X)
+print("Recovered signal shape: {}".format(S_.shape))
+
+# PCA
+pca = PCA(n_components=3)
+H = pca.fit_transform(X)
+
+# 信号を表示する
+models = [X, S, S_, H]
+names = ['Observations (first three measurements)',
+         'True sources',
+         'NMF recovered signals',
+         'PCA recovered signals']
+
+fig, axes = plt.subplots(4, figsize=(8, 4), gridspec_kw={'hspace': .5}, subplot_kw={'xticks': (), 'yticks': ()})
+for model, name, ax in zip(models, names, axes):
+    ax.set_title(name)
+    ax.plot(model[:, :3], '-')
